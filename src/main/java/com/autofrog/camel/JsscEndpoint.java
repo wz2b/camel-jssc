@@ -43,7 +43,7 @@ public class JsscEndpoint extends DefaultEndpoint {
     @Metadata(required = "true")
     private int baud;
 
-    @UriParam
+    @UriPath /* Should be @UriParam but this doesn't seem to work */
     @Metadata(required="true")
     private String path;
 

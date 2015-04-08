@@ -55,7 +55,7 @@ public class JsscConsumer extends DefaultConsumer {
                     Exchange exchange = endpoint.createExchange();
                     try {
                         byte [] bytes = sp.readBytes();
-                        exchange.getIn().setBody("read " + bytes.length + " bytes");
+                        exchange.getIn().setBody("read " + bytes.length + " bytes");e
                         getProcessor().process(exchange);
 
                     } catch (Exception e) {

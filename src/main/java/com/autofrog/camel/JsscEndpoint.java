@@ -17,6 +17,7 @@
 package com.autofrog.camel;
 
 import jssc.SerialPort;
+import jssc.SerialPortException;
 import org.apache.camel.*;
 import org.apache.camel.api.management.ManagedAttribute;
 import org.apache.camel.api.management.ManagedResource;
@@ -39,17 +40,39 @@ import java.util.Map;
 public class JsscEndpoint extends DefaultEndpoint {
 
     @UriParam
-    private JsscConfiguration config;
+    @Metadata(required = "true")
+    private int baud;
+
+    @UriParam
+    @Metadata(required="true")
+    private String path;
+
+    public int getBaud() {
+        return baud;
+    }
+
+    public void setBaud(int baud) {
+        this.baud = baud;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
 
     private SerialPort sp = null;
 
-    public JsscEndpoint(String endpointUri, Component component, JsscConfiguration config) {
+
+
+    public JsscEndpoint(String endpointUri, Component component) {
         super(endpointUri, component);
-        this.config = config;
     }
 
     public Producer createProducer() throws Exception {
-        return new JsscProducer(this);
+        return new JsscProducer(this, getSerialPort());
     }
 
     public Consumer createConsumer(Processor processor) throws Exception {
@@ -61,4 +84,22 @@ public class JsscEndpoint extends DefaultEndpoint {
     }
 
 
+    private SerialPort getSerialPort() throws SerialPortException {
+        if(sp == null) {
+            System.out.println("Creating serial port " + path);
+            sp = new SerialPort(path);
+
+            System.out.println("Opening serial port");
+            sp.openPort();
+
+            System.out.println("Setting serial port configuraiton");
+            sp.setParams(baud, SerialPort.DATABITS_8, SerialPort.DATABITS_8, SerialPort.PARITY_NONE );
+        }
+
+        return sp;
+    }
+
+    public SerialPort getSp() throws SerialPortException {
+        return getSerialPort();
+    }
 }

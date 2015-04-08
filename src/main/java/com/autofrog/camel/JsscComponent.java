@@ -16,6 +16,7 @@
  */
 package com.autofrog.camel;
 
+import java.net.URI;
 import java.util.Map;
 
 import org.apache.camel.CamelContext;
@@ -23,38 +24,24 @@ import org.apache.camel.ComponentConfiguration;
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.DefaultComponent;
 import org.apache.camel.impl.UriEndpointComponent;
+import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriEndpoint;
+import org.apache.camel.spi.UriParam;
 
 /**
  * Represents the component that manages {@link JsscEndpoint}.
  */
 
 public class JsscComponent extends UriEndpointComponent {
-
-    private JsscConfiguration config;
-
-    public JsscComponent(Class<? extends Endpoint> endpointClass) {
-        super(endpointClass);
-    }
-
-    public JsscComponent(CamelContext context, Class<? extends Endpoint> endpointClass) {
-        super(context, endpointClass);
+    public JsscComponent() {
+        super(JsscEndpoint.class);
     }
 
     protected Endpoint createEndpoint(String uri,
                                       String remaining,
                                       Map<String, Object> parameters) throws Exception {
-
-        JsscEndpoint endpoint = new JsscEndpoint(uri, this, config);
+        JsscEndpoint endpoint = new JsscEndpoint(uri, this);
         setProperties(endpoint, parameters);
         return endpoint;
-    }
-
-    public JsscConfiguration getConfig() {
-        return config;
-    }
-
-    public void setConfig(JsscConfiguration config) {
-        this.config = config;
     }
 }

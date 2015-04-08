@@ -16,6 +16,7 @@
  */
 package com.autofrog.camel;
 
+import jssc.SerialPort;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultProducer;
 import org.slf4j.Logger;
@@ -27,7 +28,7 @@ import org.slf4j.LoggerFactory;
 public class JsscProducer extends DefaultProducer {
     private static final transient Logger LOG = LoggerFactory.getLogger(JsscProducer.class);
 
-    public JsscProducer(JsscEndpoint endpoint) {
+    public JsscProducer(JsscEndpoint endpoint, SerialPort port) {
         super(endpoint);
     }
 

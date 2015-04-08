@@ -21,27 +21,49 @@ import java.util.Date;
 import java.util.Map;
 
 import jssc.SerialPort;
+import jssc.SerialPortEvent;
+import jssc.SerialPortEventListener;
+import jssc.SerialPortException;
+import org.apache.camel.Consumer;
+import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.camel.impl.DefaultConsumer;
+import org.apache.camel.impl.EventDrivenPollingConsumer;
 import org.apache.camel.impl.ScheduledPollConsumer;
 import org.apache.camel.util.URISupport;
 
 /**
  * The HelloWorld consumer.
  */
-public class JsscConsumer extends ScheduledPollConsumer {
-
+public class JsscConsumer extends DefaultConsumer {
     public JsscConsumer(JsscEndpoint endpoint, Processor processor) {
         super(endpoint, processor);
-        System.out.println("********* !!!!!!!!!!! ***********");
-
     }
 
     @Override
-    protected int poll() throws Exception {
-        System.out.println("********* POLL ***********");
+    protected void doStart() throws Exception {
 
-        JsscEndpoint ep = (JsscEndpoint) super.getEndpoint();
-        return 0;
+        final JsscEndpoint endpoint = (JsscEndpoint) getEndpoint();
+        final SerialPort sp = endpoint.getSp();
+
+        sp.addEventListener(new SerialPortEventListener() {
+            @Override
+            public void serialEvent(SerialPortEvent event) {
+
+                if (event.isRXCHAR() && event.getEventValue() > 0) {
+                    Exchange exchange = endpoint.createExchange();
+                    try {
+                        byte [] bytes = sp.readBytes();
+                        exchange.getIn().setBody("read " + bytes.length + " bytes");
+                        getProcessor().process(exchange);
+
+                    } catch (Exception e) {
+                        exchange.setException(e);
+                    }
+                }
+            }
+        });
+
     }
 }

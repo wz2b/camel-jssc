@@ -42,6 +42,8 @@ public class JsscComponent extends UriEndpointComponent {
                                       Map<String, Object> parameters) throws Exception {
         JsscEndpoint endpoint = new JsscEndpoint(uri, this);
         setProperties(endpoint, parameters);
+
+        endpoint.setPath(remaining);
         return endpoint;
     }
 }

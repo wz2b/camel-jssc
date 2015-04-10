@@ -26,6 +26,8 @@ import org.apache.camel.impl.UriComponentConfiguration;
 import org.apache.camel.impl.UriEndpointComponent;
 import org.apache.camel.spi.*;
 import org.apache.camel.util.URISupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -38,14 +40,22 @@ import java.util.Map;
         consumerClass = JsscConsumer.class,
         title = "JSSC Component")
 public class JsscEndpoint extends DefaultEndpoint {
+    private final static Logger log = LoggerFactory.getLogger(JsscEndpoint.class);
 
     @UriParam
     @Metadata(required = "true")
     private int baud;
 
-    @UriPath /* Should be @UriParam but this doesn't seem to work */
-    @Metadata(required="true")
+
     private String path;
+
+    public JsscEndpoint(String endpointUri, Component component) {
+        super(endpointUri, component);
+
+
+
+    }
+
 
     public int getBaud() {
         return baud;
@@ -67,15 +77,15 @@ public class JsscEndpoint extends DefaultEndpoint {
 
 
 
-    public JsscEndpoint(String endpointUri, Component component) {
-        super(endpointUri, component);
-    }
+
 
     public Producer createProducer() throws Exception {
+        log.info("Please create a producer");
         return new JsscProducer(this, getSerialPort());
     }
 
     public Consumer createConsumer(Processor processor) throws Exception {
+        log.info("Please create a consumer");
         return new JsscConsumer(this, processor);
     }
 
@@ -86,16 +96,17 @@ public class JsscEndpoint extends DefaultEndpoint {
 
     private SerialPort getSerialPort() throws SerialPortException {
         if(sp == null) {
-            System.out.println("Creating serial port " + path);
+            log.info("Creating serial port {}", path);
             sp = new SerialPort(path);
 
-            System.out.println("Opening serial port");
+            log.info("Opening serial port");
             sp.openPort();
 
-            System.out.println("Setting serial port configuraiton");
-            sp.setParams(baud, SerialPort.DATABITS_8, SerialPort.DATABITS_8, SerialPort.PARITY_NONE );
+            log.info("Setting serial port configuration {}", baud);
+            sp.setParams(baud, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE );
         }
 
+        log.info("Returning serial port");
         return sp;
     }
 

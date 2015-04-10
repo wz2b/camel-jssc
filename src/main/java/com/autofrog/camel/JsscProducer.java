@@ -30,9 +30,11 @@ public class JsscProducer extends DefaultProducer {
 
     public JsscProducer(JsscEndpoint endpoint, SerialPort port) {
         super(endpoint);
+        LOG.info("creating a producer by construction");
     }
 
     public void process(Exchange exchange) throws Exception {
-        System.out.println(exchange.getIn().getBody());    
+        log.info("Processing {}", exchange);
+        exchange.getIn().setBody("XXXXX");
     }
 }

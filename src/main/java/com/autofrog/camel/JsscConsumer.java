@@ -24,46 +24,63 @@ import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
-import org.apache.camel.Consumer;
-import org.apache.camel.Endpoint;
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
+import org.apache.camel.*;
 import org.apache.camel.impl.DefaultConsumer;
 import org.apache.camel.impl.EventDrivenPollingConsumer;
 import org.apache.camel.impl.ScheduledPollConsumer;
 import org.apache.camel.util.URISupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The HelloWorld consumer.
  */
 public class JsscConsumer extends DefaultConsumer {
+    private static final Logger log = LoggerFactory.getLogger(JsscConsumer.class);
+
     public JsscConsumer(JsscEndpoint endpoint, Processor processor) {
         super(endpoint, processor);
+        log.info("Created");
     }
 
     @Override
     protected void doStart() throws Exception {
-
+        log.info("Starting");
         final JsscEndpoint endpoint = (JsscEndpoint) getEndpoint();
         final SerialPort sp = endpoint.getSp();
 
+        log.info("Adding a serial port event listener");
         sp.addEventListener(new SerialPortEventListener() {
             @Override
             public void serialEvent(SerialPortEvent event) {
+                log.info("Serial event");
+
 
                 if (event.isRXCHAR() && event.getEventValue() > 0) {
-                    Exchange exchange = endpoint.createExchange();
-                    try {
-                        byte [] bytes = sp.readBytes();
-                        exchange.getIn().setBody("read " + bytes.length + " bytes");e
-                        getProcessor().process(exchange);
 
+                    Exchange exchange = getEndpoint().createExchange();
+                    try {
+                        byte[] bytes = sp.readBytes();
+
+//                        System.out.print(String.format("Read %d bytes: ", bytes.length));
+//                        for (byte b : bytes) {
+//                            System.out.print(String.format("%02X ", b));
+//                        }
+//                        System.out.println();
+
+
+                        exchange.getIn().setBody(bytes);
+                        log.info("Sending message onward");
+                        getProcessor().process(exchange);
                     } catch (Exception e) {
-                        exchange.setException(e);
+                        log.info("Exception processing message",e );
+                            exchange.setException(e);
                     }
                 }
             }
         });
+        log.info("Listener added, everything appears to be started now.");
 
     }
+
 }
